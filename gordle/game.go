@@ -2,6 +2,7 @@ package gordle
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,6 +14,10 @@ type Game struct {
 }
 
 const solutionLength = 5
+
+var errInvalidWordLength = errors.New("invalid guess, word doesn't have the same number of characters as the solution")
+
+// var errInvalidWordLength = fmt.Errorf("Invalid guess, word doesn't have the same number of characters as the solution")
 
 func New(playerInput io.Reader) *Game {
 	// return &Game{}
@@ -48,12 +53,20 @@ func (g *Game) ask() []rune {
 		}
 		guess := []rune(string(playerInput))
 
-		// TODO: check the suggestion length
+		err = g.validateGuess(guess)
 
-		if len(guess) != solutionLength {
-			_, _ = fmt.Fprintf(os.Stderr, "Your attempt does not match Gordle's solution required length\n Expected %d characters and got %d", solutionLength, len(guess))
+		if err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "Your attempt is invalid with Gordle's solution: %s. \n", err.Error())
 		} else {
 			return guess
 		}
 	}
+}
+
+func (g *Game) validateGuess(guess []rune) error {
+	if len(guess) != solutionLength {
+		return fmt.Errorf("expected %d, got %d, %w", solutionLength, len(guess), errInvalidWordLength)
+	}
+
+	return nil
 }
