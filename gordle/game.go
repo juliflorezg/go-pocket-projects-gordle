@@ -6,25 +6,28 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strings"
 )
 
 // Game holds all the information we need to play a game of gordle.
 type Game struct {
-	reader *bufio.Reader
+	reader      *bufio.Reader
+	solution    []rune
+	maxAttempts int
 }
-
-const solutionLength = 5
 
 var errInvalidWordLength = errors.New("invalid guess, word doesn't have the same number of characters as the solution")
 
 // var errInvalidWordLength = fmt.Errorf("Invalid guess, word doesn't have the same number of characters as the solution")
 
-func New(playerInput io.Reader) *Game {
+func New(playerInput io.Reader, solution string, maxAttempts int) *Game {
 	// return &Game{}
 
 	g := &Game{
-		reader: bufio.NewReader(playerInput),
+		reader:      bufio.NewReader(playerInput),
+		solution:    splitToUppercaseCharacters(solution),
+		maxAttempts: maxAttempts,
 	}
 
 	return g
@@ -34,17 +37,20 @@ func New(playerInput io.Reader) *Game {
 func (g *Game) Play() {
 	fmt.Println("Welcome to Gordle!")
 
-	// fmt.Printf("Enter a guess: \n")
-
-	guess := g.ask()
-
-	fmt.Printf("Your guess is: %s\n", string(guess))
+	for currentAttempt := 1; currentAttempt <= g.maxAttempts; currentAttempt++ {
+		guess := g.ask()
+		if slices.Equal(guess, g.solution) {
+			fmt.Printf("🎉You won! You found the word in %d attempt(s)! The words was: %s🎉\n", currentAttempt, string(g.solution))
+			return
+		}
+	}
+	fmt.Printf("😞 You've lost! The words was: %s\n", string(g.solution))
 
 }
 
 // ask reads input until a valid suggestion is made (and returned)
 func (g *Game) ask() []rune {
-	fmt.Printf("Enter a %d character guess:\n", solutionLength)
+	fmt.Printf("Enter a %d character guess:\n", len(g.solution))
 
 	for {
 		playerInput, _, err := g.reader.ReadLine()
@@ -65,8 +71,8 @@ func (g *Game) ask() []rune {
 }
 
 func (g *Game) validateGuess(guess []rune) error {
-	if len(guess) != solutionLength {
-		return fmt.Errorf("expected %d, got %d, %w", solutionLength, len(guess), errInvalidWordLength)
+	if len(guess) != len(g.solution) {
+		return fmt.Errorf("expected %d, got %d, %w", len(g.solution), len(guess), errInvalidWordLength)
 	}
 
 	return nil
