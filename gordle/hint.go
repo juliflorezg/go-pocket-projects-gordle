@@ -1,5 +1,7 @@
 package gordle
 
+import "strings"
+
 // hint describes the validity of a character in a word.
 type hint byte
 
@@ -32,4 +34,14 @@ func (h hint) String() string {
 			return "💔"
 		}
 	}
+}
+
+func (fb feedback) String() string {
+	sb := strings.Builder{}
+
+	for _, h := range fb {
+		sb.WriteString(h.String())
+	}
+
+	return sb.String()
 }
