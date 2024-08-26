@@ -21,16 +21,26 @@ var errInvalidWordLength = errors.New("invalid guess, word doesn't have the same
 
 // var errInvalidWordLength = fmt.Errorf("Invalid guess, word doesn't have the same number of characters as the solution")
 
-func New(playerInput io.Reader, solution string, maxAttempts int) *Game {
+func New(playerInput io.Reader, corpus []string, maxAttempts int) (*Game, error) {
 	// return &Game{}
+	if len(corpus) == 0 {
+		return nil, ErrEmptyCorpus
+	}
+	// if err != nil {
+	// 	fmt.Fprintf(os.Stdout, "encountered an error opening a words file: %v\n", err)
+	// 	os.Exit(1)
+	// }
+
+	// randWord := pickWord(corpus)
 
 	g := &Game{
-		reader:      bufio.NewReader(playerInput),
-		solution:    splitToUppercaseCharacters(solution),
+		reader: bufio.NewReader(playerInput),
+		// solution:    splitToUppercaseCharacters(solution),
+		solution:    splitToUppercaseCharacters(pickWord(corpus)),
 		maxAttempts: maxAttempts,
 	}
 
-	return g
+	return g, nil
 }
 
 // Play runs the game.
