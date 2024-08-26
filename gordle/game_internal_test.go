@@ -112,3 +112,53 @@ func TestSplitToUppercaseCharacters(t *testing.T) {
 		})
 	}
 }
+
+func TestComputeFeedback(t *testing.T) {
+	tt := map[string]struct {
+		guess            string
+		solution         string
+		expectedFeedback feedback
+	}{
+		"nominal": {
+			guess:            "hello",
+			solution:         "hello",
+			expectedFeedback: feedback{correctPosition, correctPosition, correctPosition, correctPosition, correctPosition},
+		},
+		"double character": {
+			guess:            "lleho",
+			solution:         "hello",
+			expectedFeedback: feedback{wrongPosition, wrongPosition, wrongPosition, wrongPosition, correctPosition},
+		},
+		"double character with wrong answer": {
+			guess:            "hellp",
+			solution:         "hello",
+			expectedFeedback: feedback{correctPosition, correctPosition, correctPosition, correctPosition, absentCharacter},
+		},
+		"two identical, but not in the right position (from left to right)": {
+			guess:            "hlleo",
+			solution:         "hello",
+			expectedFeedback: feedback{correctPosition, wrongPosition, correctPosition, wrongPosition, correctPosition},
+		},
+		"just one letter is present but in wrong position": {
+			guess:            "brave",
+			solution:         "hello",
+			expectedFeedback: feedback{absentCharacter, absentCharacter, absentCharacter, absentCharacter, wrongPosition},
+		},
+		"lengths doesn't match": {
+			guess:            "length",
+			solution:         "hello",
+			expectedFeedback: feedback{absentCharacter, absentCharacter, absentCharacter, absentCharacter, absentCharacter, absentCharacter},
+		},
+	}
+
+	for name, tc := range tt {
+		t.Run(name, func(t *testing.T) {
+			fb := computeFeedback([]rune(tc.guess), []rune(tc.solution))
+
+			if !tc.expectedFeedback.Equal(fb) {
+				t.Errorf("guess: %q, got the wrong feedback, expected %v, got %v", tc.guess, tc.expectedFeedback, fb)
+			}
+
+		})
+	}
+}
