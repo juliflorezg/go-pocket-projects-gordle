@@ -33,7 +33,7 @@ func TestGameAsk(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			g := New(strings.NewReader(tc.input), tc.input, 0)
+			g, _ := New(strings.NewReader(tc.input), []string{"", ""}, 0)
 
 			got := g.ask()
 			if !slices.Equal(got, tc.want) {
@@ -72,7 +72,7 @@ func TestGameValidateGuess(t *testing.T) {
 
 	for name, tc := range tt {
 		t.Run(name, func(t *testing.T) {
-			g := New(strings.NewReader(string(tc.input)), string(tc.input), 0)
+			g, _ := New(strings.NewReader(string(tc.input)), []string{"", ""}, 0)
 
 			got := g.validateGuess(tc.input)
 
