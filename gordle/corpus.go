@@ -1,13 +1,12 @@
 package gordle
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strings"
 )
 
-var ErrEmptyCorpus = errors.New("corpus is empty")
+const ErrEmptyCorpus = corpusError("corpus is empty")
 
 // ReadCorpus reads the file located at the given path
 // and returns a list of words.
